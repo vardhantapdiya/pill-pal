@@ -13,4 +13,4 @@ const savedAltSchema = new mongoose.Schema({
 // prevent duplicate saved alternative for same user + medicine + name
 savedAltSchema.index({ user: 1, medicine: 1, name: 1 }, { unique: true });
 
-module.exports = mongoose.model("SavedAlternative", savedAltSchema);
+module.exports = mongoose.model("SavedAlternatives", savedAltSchema); //added an s, remove if any issues.

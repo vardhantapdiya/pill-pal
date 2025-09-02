@@ -46,9 +46,12 @@ router.post("/signup", async (req, res) => {
     await sendMail(
       email,
       "Your verification OTP",
-      `Your OTP is: ${code}. It expires in ${
-        process.env.OTP_TTL_SECONDS || 300
-      } seconds.`
+      `<p>Dear User,</p>
+      <p>Your One-Time Password (OTP) is: <b>${code}</b>.</p>
+      <p>For your security, please note that this code will expire in <b>${process.env.OTP_TTL_SECONDS || 300}
+      </b> seconds.</p>
+      <p>If you did not request this, please ignore this email.</p>
+      <p>Thank you,<br>Team Pill-Pal</p>`
     );
 
     return res
@@ -80,9 +83,12 @@ router.post("/resend-otp", async (req, res) => {
     await sendMail(
       email,
       "Your verification OTP (resend)",
-      `Your OTP is: ${code}. It expires in ${
-        process.env.OTP_TTL_SECONDS || 300
-      } seconds.`
+      `<p>Dear User,</p>
+      <p>Your One-Time Password (OTP) is: <b>${code}</b>.</p>
+      <p>For your security, please note that this code will expire in <b>${process.env.OTP_TTL_SECONDS || 300}
+      </b> seconds.</p>
+      <p>If you did not request this, please ignore this email.</p>
+      <p>Thank you,<br>Team Pill-Pal</p>`
     );
 
     return res.json({ message: "OTP resent" });
@@ -189,9 +195,12 @@ router.post("/forgot-password", async (req, res) => {
     await sendMail(
       email,
       "Your password reset OTP",
-      `Your OTP is: ${code}. It expires in ${
-        process.env.OTP_TTL_SECONDS || 300
-      } seconds.`
+      `<p>Dear User,</p>
+      <p>Your One-Time Password (OTP) for resetting your password is: <b>${code}</b>.</p>
+      <p>This code will expire in <b>${process.env.OTP_TTL_SECONDS || 300}
+      </b> seconds. Please use it promptly to complete your password reset.</p>
+      <p>If you did not request a password reset, please ignore this email.</p>
+      <p>Thank you,<br>Team Pill-Pal</p>`
     );
 
     return res.json({ message: "Password reset OTP sent" });
@@ -212,7 +221,7 @@ router.post("/reset-password", async (req, res) => {
         .status(400)
         .json({ error: "Email, OTP code, and new password required" });
 
-    const otpDoc = await Otp.findOne({ email: email.toLowerCase(), code:String(code) });
+    const otpDoc = await Otp.findOne({ email: email.toLowerCase(), code: String(code) });
     if (!otpDoc) {
       return res.status(400).json({ error: "Invalid or expired OTP" });
     }
@@ -238,9 +247,9 @@ router.post("/passReset-otp", async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required" });
 
-    const exists = await User.findOne({email:email});
-    if(!exists){
-      return res.status(400).json({error:"User does not exist"});
+    const exists = await User.findOne({ email: email });
+    if (!exists) {
+      return res.status(400).json({ error: "User does not exist" });
     }
 
     const code = generateOtp();
@@ -255,11 +264,14 @@ router.post("/passReset-otp", async (req, res) => {
     await sendMail(
       email,
       "Your verification OTP (Password-Reset)",
-      `Your OTP is: ${code}. It expires in ${
-        process.env.OTP_TTL_SECONDS || 300
-      } seconds.`
+      `<p>Dear User,</p>
+      <p>Your One-Time Password (OTP) for password reset verification is: <b>${code}</b>.</p>
+      <p>This code will expire in <b>${process.env.OTP_TTL_SECONDS || 300}
+      </b> seconds. Please use it within this time frame to proceed with resetting your password.</p>
+      <p>If you did not request this action, please disregard this email.</p>
+      <p>Thank you,<br>Team Pill-Pal</p>`
     );
-
+    
     return res.status(201).json({ message: "OTP sent, Verify the Otp to reset your password" });
   } catch (err) {
     console.error("Password Reset OTP error:", err.message);

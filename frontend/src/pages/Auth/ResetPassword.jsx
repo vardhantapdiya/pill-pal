@@ -64,7 +64,7 @@ function ResetPassword() {
         };
         try {
             await dispatch(resetPassword({ email, password, code })).unwrap();
-            toast.success("Otp Verification Successful, You can Login now!")
+            toast.success("Password Reset Successful, Login to continue")
             nav("/login");
         } catch { }
     };
@@ -179,7 +179,7 @@ function ResetPassword() {
                         {/* Submit Button */}
                         <button
                             type="submit"
-                            className={`w-full px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl transition-all duration-300 outline-none focus:ring-4 ${
+                            className={`w-full px-4 py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-xl transition-all duration-300 outline-none focus:ring-4 cursor-pointer ${
                                 !isFormValid() || status === "loading"
                                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                                     : "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg focus:ring-blue-100 transform hover:-translate-y-0.5 active:transform active:scale-95"
@@ -229,7 +229,7 @@ function ResetPassword() {
                                 className={`px-3 py-1.5 text-xs cursor-pointer font-semibold rounded-lg transition-all duration-200 min-w-[100px] ${
                                     isResendingOtp 
                                         ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                                        : "text-blue-600 hover:text-blue-700 hover:bg-blue-100 hover:underline active:scale-95"
+                                        : "text-blue-600 hover:text-blue-700 hover:underline active:scale-95"
                                 }`}
                             >
                                 {isResendingOtp ? (

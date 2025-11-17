@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import api from "../api/axios";
 import SkeletonCard from "../components/SkeletonCard";
@@ -10,18 +10,41 @@ export default function Search() {
   const [data, setData] = useState(null); // { alternatives: [...] }
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+  const seqRef = useRef(0);
+
+  // useEffect(() => {
+  //   const run = async () => {
+  //     if (!name) return;
+  //     setLoading(true); setErr("");
+  //     try {
+  //       const { data } = await api.post("/search",{ medicineName: name });
+  //       setData(data);
+  //     } catch (e) {
+  //       setErr("Failed to fetch results");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   run();
+  // }, [name]);
 
   useEffect(() => {
     const run = async () => {
       if (!name) return;
-      setLoading(true); setErr("");
+      const mySeq = ++seqRef.current;
+
+      setLoading(true);
+      setErr("");
       try {
-        const { data } = await api.post("/search",{ medicineName: name });
-        setData(data);
+        const res = await api.post("/search", { medicineName: name });
+        // ignore if a newer request has started
+        if (mySeq !== seqRef.current) return;
+        setData(res.data);
       } catch (e) {
+        if (mySeq !== seqRef.current) return; // stale error, ignore
         setErr("Failed to fetch results");
       } finally {
-        setLoading(false);
+        if (mySeq === seqRef.current) setLoading(false);
       }
     };
     run();

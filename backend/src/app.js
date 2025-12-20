@@ -26,8 +26,8 @@ app.use(express.json({ limit: "10kb" }));
 
 
 // --- Health check ---
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok", service: "medicine-alternatives-api" });
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({ status: "ok", service: "medicine-alternatives-api" });
 });
 
 // --- Placeholder for future routes (auth, search, save, etc.) ---

@@ -10,7 +10,11 @@ export default function Home() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await api.post("/search", { medicineName: "Dolo 650" });
+        // const res = await api.post("/search", { medicineName: "Dolo 650" });
+        // if (res == null || res.status != 200) {
+        //   toast.error("Server is down, Please try again after some time.")
+        // }
+        const res = await api.get("/health");
         if (res == null || res.status != 200) {
           toast.error("Server is down, Please try again after some time.")
         }

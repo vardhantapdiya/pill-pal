@@ -1,9 +1,28 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import api from "../api/axios";
 
 export default function Home() {
   const [q, setQ] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const res = await api.post("/search", { medicineName: "Dolo 650" });
+        if (res == null || res.status != 200) {
+          toast.error("Server is down, Please try again after some time.")
+        }
+      }
+      catch (err) {
+        toast.error("Server is down, Please try again after some time.");
+        console.log("Error:-", err);
+      }
+    }
+    checkHealth();
+  }, [])
+
 
   const submit = (e) => {
     e.preventDefault();
@@ -33,19 +52,19 @@ export default function Home() {
             <input
               className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg placeholder-gray-400 bg-transparent border-none outline-none min-h-[48px]"
               placeholder="Enter medicine name..."
-              value={q} 
-              onChange={e=>setQ(e.target.value)}
+              value={q}
+              onChange={e => setQ(e.target.value)}
             />
-            <button 
+            <button
               type="submit"
               className={`px-6 sm:px-8 py-3 sm:py-4 bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors 
-                duration-200 outline-none focus:bg-blue-700 text-base sm:text-lg min-h-[48px] ${q.length<4 ? "cursor-not-allowed" : "cursor-pointer"}`}
+                duration-200 outline-none focus:bg-blue-700 text-base sm:text-lg min-h-[48px] ${q.length < 4 ? "cursor-not-allowed" : "cursor-pointer"}`}
             >
               Search
             </button>
           </div>
         </form>
-        
+
         {/* Search Suggestions */}
         <div className="mt-4 sm:mt-6 text-center">
           <p className="text-sm text-gray-500 mb-2 sm:mb-3">Popular searches:</p>
@@ -76,7 +95,7 @@ export default function Home() {
             All suggested alternatives are medically equivalent and safe to use.
           </p>
         </div>
-        
+
         <div className="text-center p-4 sm:p-6">
           <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
             <span className="text-2xl">💰</span>
@@ -86,7 +105,7 @@ export default function Home() {
             Save up to 70% on your medical expenses with budget-friendly options.
           </p>
         </div>
-        
+
         <div className="text-center p-4 sm:p-6 sm:col-span-2 md:col-span-1">
           <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
             <span className="text-2xl">🔍</span>

@@ -1,5 +1,6 @@
 import { useEffect, useState,useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import api from "../api/axios";
 import SkeletonCard from "../components/SkeletonCard";
 import SearchResultCard from "../components/SearchResultCard";
@@ -27,6 +28,12 @@ export default function Search() {
   //   };
   //   run();
   // }, [name]);
+
+  useEffect(() => {
+    toast.info("Server is on Render's basic tier, so you may experience slight delays. Your patience is appreciated!",
+      { autoClose: 6000 }
+    )
+  }, [])
 
   useEffect(() => {
     const run = async () => {

@@ -1,5 +1,8 @@
 // import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import api from "./api/axios";
 import Navbar from "./components/Navbar";
 import Disclaimer from "./components/Disclaimer";
 import Home from "./pages/Home";
@@ -13,6 +16,25 @@ import ForgotPass from "./pages/Auth/ForgotPass";
 import ResetPassword from "./pages/Auth/ResetPassword";
 
 function App() {
+  useEffect(() => {
+    const checkHealth = async () => {
+      const hasChecked = sessionStorage.getItem('healthCheckDone');
+        if(hasChecked){
+          return;
+        }
+        sessionStorage.setItem('healthCheckDone','true');
+      try {
+        const res = await api.get("/health");
+        if (res == null || res.status != 200) {
+          toast.error("Server is down, Please try again after some time.");
+        }
+      } catch (err) {
+        toast.error("Server is down, Please try again after some time.");
+        console.log("Error:-", err);
+      }
+    };
+    checkHealth();
+  }, []);
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex flex-col">

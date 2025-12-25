@@ -27,6 +27,7 @@ app.use(express.json({ limit: "10kb" }));
 
 // --- Health check ---
 app.get("/api/health", (_req, res) => {
+  console.log("Health Check hit");
   res.status(200).json({ status: "ok", service: "medicine-alternatives-api" });
 });
 

@@ -1,3 +1,4 @@
+require("./utils/redisClient")
 const express = require("express");
 const cors = require("cors");
 

@@ -1,4 +1,4 @@
-import { useEffect, useState,useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../api/axios";
@@ -49,7 +49,19 @@ export default function Search() {
         setData(res.data);
       } catch (e) {
         if (mySeq !== seqRef.current) return; // stale error, ignore
-        setErr("Failed to fetch results");
+        if (e.response?.status === 429) {
+          const msg =
+            e.response?.data?.message ||
+            "You are searching too fast. Please wait a moment.";
+
+          setErr(msg);
+
+          toast.warning(msg, {
+            autoClose: 4000,
+          });
+        } else {
+          setErr("Failed to fetch results");
+        }
       } finally {
         if (mySeq === seqRef.current) setLoading(false);
       }
@@ -82,7 +94,7 @@ export default function Search() {
             <p className="text-sm text-gray-500 font-medium">Finding the best alternatives...</p>
           </div>
           <div className="grid gap-3 sm:gap-4">
-            {Array.from({ length: 4 }).map((_,i)=> <SkeletonCard key={i}/>)}
+            {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
           </div>
         </div>
       )}
@@ -95,8 +107,8 @@ export default function Search() {
           </div>
           <h3 className="text-base sm:text-lg font-semibold text-red-900 mb-2">Oops! Something went wrong</h3>
           <p className="text-red-600 mb-3 sm:mb-4 text-sm sm:text-base">{err}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-200 cursor-pointer text-sm sm:text-base min-h-[40px] touch-manipulation"
           >
             Try Again
@@ -120,11 +132,11 @@ export default function Search() {
               Sorted by affordability
             </div> */}
           </div>
-          
+
           {/* Results Grid */}
           <div className="grid gap-3 sm:gap-4">
-            {data.data.alternatives.map((alt, i)=> (
-              <SearchResultCard key={i} medicineName={name} alt={alt}/>
+            {data.data.alternatives.map((alt, i) => (
+              <SearchResultCard key={i} medicineName={name} alt={alt} />
             ))}
           </div>
         </div>
@@ -137,8 +149,8 @@ export default function Search() {
           <p className="text-gray-600 mb-4 sm:mb-6 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
             We couldn't find any alternatives for "{name}". Try searching with a different medicine name.
           </p>
-          <button 
-            onClick={() => window.history.back()} 
+          <button
+            onClick={() => window.history.back()}
             className="px-5 sm:px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 cursor-pointer text-sm sm:text-base min-h-[44px] touch-manipulation"
           >
             Go Back to Search

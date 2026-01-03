@@ -2,9 +2,15 @@ const express = require("express");
 const router = express.Router();
 const fetchAlternatives = require("../utils/geminiClient");
 const redisClient = require("../utils/redisClient")
+const rateLimiter = require("../middleware/rateLimiter");
 
 // POST /api/search
-router.post("/", async (req, res) => {
+router.post("/", rateLimiter({
+  keyPrefix: "gemini-search",
+    capacity: 5,
+    refillRate: 0.1, // ~1 request every 10 seconds
+    identifyBy: "auto",
+}),async (req, res) => {
   try {
     const { medicineName } = req.body;
     if (!medicineName) {

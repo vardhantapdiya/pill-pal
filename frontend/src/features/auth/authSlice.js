@@ -6,13 +6,22 @@ import { syncLocalToServer } from "../saved/savedSlice";
 // ek signup reducer banana hai jo api call kare, to syntactically isko bahar banate hai, "auth/signup" ka mtlb
 // ye hi hai. Second argu hota hai ek callback, ki kya kaam karwana hai(api calls aur related bhaang bhosda)
 // 
+
+const getApiErrorMessage = (error) => {
+  if (error.response?.status === 429) {
+    return error.response.data?.message || "Too many requests. Please wait.";
+  }
+  return error.response?.data?.error || error.message;
+};
+
 export const signup = createAsyncThunk("auth/signup", async ({ email, password }, { rejectWithValue }) => {
   try {
     const { data } = await api.post("/auth/signup", { email, password });
     return { message: data.message, email };
   } catch (error) {
-    const errorMessage = error.response?.data?.error || error.message;
-    return rejectWithValue(errorMessage);
+    // const errorMessage = error.response?.data?.error || error.message;
+    // return rejectWithValue(errorMessage);
+    return rejectWithValue(getApiErrorMessage(error));
   }
 });
 
@@ -21,8 +30,9 @@ export const resendOtp = createAsyncThunk("auth/resendOtp", async ({ email }, { 
     const { message } = await api.post("/auth/resend-otp", { email });
     return { message: message, email };
   } catch (error) {
-    const errorMessage = error.response?.data?.error || error.message;
-    return rejectWithValue(errorMessage);
+    // const errorMessage = error.response?.data?.error || error.message;
+    // return rejectWithValue(errorMessage);
+    return rejectWithValue(getApiErrorMessage(error));
   }
 });
 
@@ -32,8 +42,9 @@ export const resetPassOtp = createAsyncThunk("auth/resetPassOtp", async({email},
     return {message:data.message,email};
   }
   catch(error){
-    const errorMessage = error.response?.data?.error || error.message;
-    return rejectWithValue(errorMessage);
+    // const errorMessage = error.response?.data?.error || error.message;
+    // return rejectWithValue(errorMessage);
+    return rejectWithValue(getApiErrorMessage(error));
   }
 })
 
@@ -44,8 +55,9 @@ export const verifyOtp = createAsyncThunk("auth/verifyOtp", async ({ email, code
     await dispatch(syncLocalToServer());
     return data;
   } catch (error) {
-    const errorMessage = error.response?.data?.error || error.message;
-    return rejectWithValue(errorMessage);
+    // const errorMessage = error.response?.data?.error || error.message;
+    // return rejectWithValue(errorMessage);
+    return rejectWithValue(getApiErrorMessage(error));
   }
 });
 
@@ -57,8 +69,9 @@ export const login = createAsyncThunk("auth/login", async ({ email, password }, 
     return data;
   } catch (error) {
     // Extract the actual error message from the API response
-    const errorMessage = error.response?.data?.error || error.message;
-    return rejectWithValue(errorMessage);
+    // const errorMessage = error.response?.data?.error || error.message;
+    // return rejectWithValue(errorMessage);
+    return rejectWithValue(getApiErrorMessage(error));
   }
 });
 
@@ -70,8 +83,9 @@ export const resetPassword = createAsyncThunk("auth/resetPassword", async ({ ema
     return message;
   } catch (error) {
     // Extract the actual error message from the API response
-    const errorMessage = error.response?.data?.error || error.message;
-    return rejectWithValue(errorMessage);
+    // const errorMessage = error.response?.data?.error || error.message;
+    // return rejectWithValue(errorMessage);
+    return rejectWithValue(getApiErrorMessage(error));
   }
 });
 

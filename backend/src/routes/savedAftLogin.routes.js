@@ -2,7 +2,7 @@ const express = require("express");
 const SavedAlternative = require("../models/SavedAlternatives.js");
 const Medicine = require("../models/Medicine.js");
 const authMiddleware = require("../middleware/auth.middleware.js");
-
+const rateLimiter = require("../middleware/rateLimiter.js")
 const router = express.Router();
 
 /**
@@ -11,7 +11,14 @@ const router = express.Router();
  * Body: { medicineName, alternative }
  * alternative = { name, price, link }
  */
-router.post("/save", authMiddleware, async (req, res) => {
+router.post("/save", authMiddleware,
+  rateLimiter({
+    keyPrefix: "saved-save",
+    capacity: 10,
+    refillRate: 1, // 1 request per second
+    identifyBy: "user",
+  }),
+   async (req, res) => {
   try {
     const { medicineName, alternative } = req.body;
     const userId = req.user._id;
@@ -67,7 +74,14 @@ router.post("/save", authMiddleware, async (req, res) => {
 });
 
 // ✅ Get all saved medicines for a user
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", authMiddleware,
+  rateLimiter({
+    keyPrefix: "saved-list",
+    capacity: 60,
+    refillRate: 2, // 2 req/sec
+    identifyBy: "user",
+  }),
+   async (req, res) => {
   try {
     const savedMeds = await SavedAlternative.find({ user: req.user._id })
       .populate("medicine") // get original searched medicine details
@@ -81,7 +95,14 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // ✅ Delete a saved medicine by ID
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, 
+  rateLimiter({
+    keyPrefix: "saved-delete",
+    capacity: 10,
+    refillRate: 1,
+    identifyBy: "user",
+  }),
+  async (req, res) => {
   try {
     const deleted = await SavedAlternative.findOneAndDelete({
       _id: req.params.id,

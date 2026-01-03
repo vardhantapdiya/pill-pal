@@ -6,6 +6,7 @@ const User = require("../models/User");
 const Otp = require("../models/Otp");
 const { generateOtp } = require("../utils/otpGen");
 const { sendMail } = require("../utils/email");
+const rateLimiter = require('../middleware/rateLimiter')
 
 const router = express.Router();
 
@@ -19,7 +20,12 @@ const signToken = (payload) => {
 /**
  * 1) Signup - store OTP + passwordHash temporarily
  */
-router.post("/signup", async (req, res) => {
+router.post("/signup", rateLimiter({
+    keyPrefix: "signup",
+    capacity: 3,
+    refillRate: 0.02, // ~1 per 50 sec
+    identifyBy: "ip",
+  }), async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
@@ -66,7 +72,12 @@ router.post("/signup", async (req, res) => {
 /**
  * 2) Resend OTP
  */
-router.post("/resend-otp", async (req, res) => {
+router.post("/resend-otp", rateLimiter({
+    keyPrefix: "resend-otp",
+    capacity: 2,
+    refillRate: 0.01, // ~1 per 100 sec
+    identifyBy: "ip",
+  }),async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required" });
@@ -101,7 +112,13 @@ router.post("/resend-otp", async (req, res) => {
 /**
  * 3) Verify OTP - create actual User
  */
-router.post("/verify-otp", async (req, res) => {
+router.post("/verify-otp", 
+  rateLimiter({
+    keyPrefix: "verify-otp",
+    capacity: 5,
+    refillRate: 0.1, // 1 per 10 sec
+    identifyBy: "ip",
+  }),async (req, res) => {
   try {
     const { email, code } = req.body;
     if (!email || !code) {
@@ -147,7 +164,12 @@ router.post("/verify-otp", async (req, res) => {
 /**
  * 4) Login
  */
-router.post("/login", async (req, res) => {
+router.post("/login", rateLimiter({
+    keyPrefix: "login",
+    capacity: 5,
+    refillRate: 0.05, // 1 per 20 sec
+    identifyBy: "ip",
+  }),async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password)
@@ -176,7 +198,12 @@ router.post("/login", async (req, res) => {
 /**
  * 5) Forgot Password - send OTP
  */
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", rateLimiter({
+    keyPrefix: "forgot-password",
+    capacity: 2,
+    refillRate: 0.02, // ~1 per 50 sec
+    identifyBy: "ip",
+  }), async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required" });
@@ -213,7 +240,12 @@ router.post("/forgot-password", async (req, res) => {
 /**
  * 6) Reset Password - verify OTP & update password
  */
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", rateLimiter({
+    keyPrefix: "reset-password",
+    capacity: 3,
+    refillRate: 0.05, // 1 per 20 sec
+    identifyBy: "ip",
+  }),async (req, res) => {
   try {
     const { email, code, password } = req.body;
     if (!email || !code || !password)
@@ -242,7 +274,13 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
-router.post("/passReset-otp", async (req, res) => {
+router.post("/passReset-otp", 
+   rateLimiter({
+    keyPrefix: "passreset-otp",
+    capacity: 2,
+    refillRate: 0.01,
+    identifyBy: "ip",
+  }),async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required" });
